@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView, RedirectView
+from django.urls import include, path
+from django.views.generic import RedirectView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from core.views import (
@@ -14,6 +14,15 @@ from core.views import (
     SubscriptionViewSet,
     SupplierViewSet,
     UserViewSet,
+)
+from core.web import (
+    AdminClienteDashboardView,
+    ClienteFinalDashboardView,
+    GerenteDashboardView,
+    LogoutView,
+    RoleLoginView,
+    SuperAdminDashboardView,
+    VendedorDashboardView,
 )
 
 router = DefaultRouter()
@@ -40,6 +49,11 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Rutas Frontend
-    path('login/', TemplateView.as_view(template_name="login.html"), name='login'),
-    path('dashboard/', TemplateView.as_view(template_name="dashboard.html"), name='dashboard'),
+    path('login/', RoleLoginView.as_view(), name='login'),
+    path('dashboard/super-admin/', SuperAdminDashboardView.as_view(), name='dashboard_super_admin'),
+    path('dashboard/admin-cliente/', AdminClienteDashboardView.as_view(), name='dashboard_admin_cliente'),
+    path('dashboard/gerente/', GerenteDashboardView.as_view(), name='dashboard_gerente'),
+    path('dashboard/vendedor/', VendedorDashboardView.as_view(), name='dashboard_vendedor'),
+    path('dashboard/cliente-final/', ClienteFinalDashboardView.as_view(), name='dashboard_cliente_final'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 ]

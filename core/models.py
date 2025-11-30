@@ -28,6 +28,7 @@ class Company(models.Model):
 
     name = models.CharField(max_length=100)
     rut = models.CharField(max_length=12, validators=[validar_rut])
+    address = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -57,6 +58,7 @@ class User(AbstractUser):
     rut = models.CharField(max_length=12, validators=[validar_rut], blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLES, default='cliente_final')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
         if self.role in ['admin_cliente', 'gerente', 'vendedor'] and not self.company:
@@ -79,11 +81,13 @@ class Branch(models.Model):
             sub = Subscription.objects.get(company=self.company)
             current_branches = Branch.objects.filter(company=self.company).exclude(pk=self.pk).count()
 
-            if sub.plan_name == 'Basico' and current_branches >= 1:
-                raise ValidationError("El Plan Básico permite máximo 1 sucursal.")
+            from .utils import get_branch_limit
 
-            if sub.plan_name == 'Estandar' and current_branches >= 3:
-                raise ValidationError("El Plan Estándar permite máximo 3 sucursales.")
+            branch_limit = get_branch_limit(sub.plan_name)
+            if branch_limit is not None and current_branches >= branch_limit:
+                raise ValidationError(
+                    f"El Plan {sub.plan_name} permite máximo {branch_limit} sucursal(es)."
+                )
         except Subscription.DoesNotExist:
             # Si no hay suscripción registrada, no aplicamos límite (o podríamos bloquear)
             pass
