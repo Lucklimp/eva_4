@@ -20,8 +20,8 @@ from .models import (
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'rut', 'role', 'company', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'username', 'email', 'rut', 'role', 'company', 'password', 'created_at']
+        extra_kwargs = {'password': {'write_only': True}, 'created_at': {'read_only': True}}
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -46,7 +46,7 @@ class UserMeSerializer(serializers.ModelSerializer):
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['id', 'name', 'rut', 'created_at']
+        fields = ['id', 'name', 'rut', 'address', 'created_at']
         read_only_fields = ['created_at']
 
 
