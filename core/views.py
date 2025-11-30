@@ -15,7 +15,7 @@ from .models import (
     Supplier,
     User,
 )
-from .permissions import IsAdminClienteOrGerente, IsSuperAdmin
+from .permissions import IsAdminClienteOrGerente, IsSuperAdmin, PlanFeaturePermission
 from .serializers import (
     BranchSerializer,
     CompanySerializer,
@@ -87,7 +87,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
 class BranchViewSet(viewsets.ModelViewSet):
     serializer_class = BranchSerializer
-    permission_classes = [IsAuthenticated, IsAdminClienteOrGerente]
+    permission_classes = [IsAuthenticated, IsAdminClienteOrGerente, PlanFeaturePermission]
+    required_plan_feature = "basic_features"
 
     def get_queryset(self):
         return Branch.objects.filter(company=self.request.user.company)

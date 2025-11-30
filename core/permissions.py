@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from rest_framework import permissions
 
-from .utils import has_plan_feature
+from .utils import has_feature
 
 
 class IsAdminClienteOrGerente(permissions.BasePermission):
@@ -35,7 +35,7 @@ class PlanFeaturePermission(permissions.BasePermission):
         feature = getattr(view, 'required_plan_feature', self.required_feature)
         if not feature:
             return True
-        return has_plan_feature(request.user, feature)
+        return has_feature(request.user, feature)
 
 
 class RoleRequiredMixin:

@@ -10,7 +10,7 @@ from django.views.generic import TemplateView
 
 from .models import PLANES, Company, Subscription
 from .permissions import RoleRequiredMixin
-from .utils import build_menu_flags, get_company_plan
+from .utils import build_menu_flags, get_company_plan, get_plan_catalog_items, has_feature
 
 
 ROLE_DASHBOARD_URLS = {
@@ -18,7 +18,7 @@ ROLE_DASHBOARD_URLS = {
     "admin_cliente": "dashboard_admin_cliente",
     "gerente": "dashboard_gerente",
     "vendedor": "dashboard_vendedor",
-    "cliente_final": "dashboard_cliente_final",
+    "cliente_final": "dashboard_cliente",
 }
 
 
@@ -64,7 +64,8 @@ class BaseDashboardView(RoleRequiredMixin, TemplateView):
         context.update({
             "role_label": self.role_label,
             "plan_name": plan_name or "Sin Plan",
-            "menu_flags": build_menu_flags(self.request.user.role, plan_name),
+            "menu_flags": build_menu_flags(self.request.user),
+            "has_feature": lambda feature: has_feature(self.request.user, feature),
         })
         return context
 
@@ -118,7 +119,7 @@ class ClientePlanSelectionView(RoleRequiredMixin, TemplateView):
             # Suposición: los clientes finales sin compañía obtienen una compañía propia.
             company = Company.objects.create(
                 name=f"Cuenta {request.user.username}",
-                rut=request.user.rut or "11.111.111-1",
+                rut=request.user.rut or "11111111-1",
                 address="",
             )
             request.user.company = company
@@ -136,11 +137,12 @@ class ClientePlanSelectionView(RoleRequiredMixin, TemplateView):
         )
 
         messages.success(request, "Plan seleccionado correctamente.")
-        return redirect("dashboard_cliente_final")
+        return redirect("dashboard_cliente")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["plan_choices"] = PLANES
+        context["plan_catalog"] = get_plan_catalog_items()
         return context
 
 
@@ -180,5 +182,6 @@ class ClientePlanDetailView(RoleRequiredMixin, TemplateView):
         context.update({
             "plan_name": plan_name,
             "plan_choices": PLANES,
+            "plan_catalog": get_plan_catalog_items(),
         })
         return context

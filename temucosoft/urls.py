@@ -56,6 +56,7 @@ urlpatterns = [
     path('dashboard/admin-cliente/', AdminClienteDashboardView.as_view(), name='dashboard_admin_cliente'),
     path('dashboard/gerente/', GerenteDashboardView.as_view(), name='dashboard_gerente'),
     path('dashboard/vendedor/', VendedorDashboardView.as_view(), name='dashboard_vendedor'),
+    path('dashboard/cliente/', ClienteFinalDashboardView.as_view(), name='dashboard_cliente'),
     path('dashboard/cliente-final/', ClienteFinalDashboardView.as_view(), name='dashboard_cliente_final'),
     path('cliente/seleccionar-plan/', ClientePlanSelectionView.as_view(), name='cliente_plan_selection'),
     path('cliente/mi-plan/', ClientePlanDetailView.as_view(), name='cliente_plan_detail'),

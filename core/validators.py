@@ -7,13 +7,17 @@ def validar_rut(rut_string):
     if not rut_string:
         return
 
-    patron_formato = r'^(\d{1,3}(?:\.?\d{3}){2}-?[\dkK])$'
-    if not re.match(patron_formato, rut_string):
-        raise ValidationError("El formato del RUT no es válido (Ej: 12.345.678-K).")
+    rut_normalizado = re.sub(r'[^0-9kK]', '', rut_string)
+    if len(rut_normalizado) < 8 or len(rut_normalizado) > 9:
+        raise ValidationError("El RUT debe tener entre 7 y 8 dígitos más dígito verificador.")
 
-    rut_clean = re.sub(r'[\.-]', '', rut_string).upper()
-    cuerpo = rut_clean[:-1]
-    dv = rut_clean[-1]
+    cuerpo = rut_normalizado[:-1]
+    dv = rut_normalizado[-1].upper()
+    rut_formateado = f"{cuerpo}-{dv}"
+
+    patron_formato = r'^\d{7,8}-[\dkK]$'
+    if not re.match(patron_formato, rut_formateado):
+        raise ValidationError("El formato del RUT no es válido (Ej: 12345678-K).")
 
     suma = 0
     multiplo = 2
@@ -31,7 +35,9 @@ def validar_rut(rut_string):
 
 
 def validar_password_compleja(password):
-    """Regex: Al menos 8 caracteres, 1 número, 1 letra."""
-    patron = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$'
+    """Regex: Al menos 8 caracteres, 1 minúscula, 1 mayúscula y 1 número."""
+    patron = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$'
     if not re.match(patron, password):
-        raise ValidationError("La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.")
+        raise ValidationError(
+            "La contraseña debe tener mínimo 8 caracteres e incluir una mayúscula, una minúscula y un número."
+        )
