@@ -1,14 +1,19 @@
 from rest_framework import permissions
 
+
 class IsAdminClienteOrGerente(permissions.BasePermission):
-    """ Permiso para Jefes (Admin Cliente y Gerente) """
+    """Permiso para Admin Cliente y Gerente (y Super Admin)."""
+
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role in ['admin_cliente', 'gerente', 'super_admin']
 
+
 class IsVendedor(permissions.BasePermission):
-    """ Permiso para Vendedores """
+    """Permiso para Vendedores."""
+
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == 'vendedor'
+
 
 class IsSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
