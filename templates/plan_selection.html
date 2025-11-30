@@ -17,16 +17,20 @@
     </div>
 
     <div class="row g-4">
-      {% for plan_value, plan_label in plan_choices %}
+      {% for plan in plan_catalog %}
       <div class="col-12 col-md-4">
         <form method="post" class="card h-100 shadow-sm">
           {% csrf_token %}
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title text-center">{{ plan_label }}</h5>
-            <p class="card-text text-muted text-center">Plan {{ plan_label }} para tu negocio.</p>
-            <input type="hidden" name="plan" value="{{ plan_value }}" />
+            <h5 class="card-title text-center">{{ plan.label }}</h5>
+            <ul class="list-unstyled text-muted small">
+              {% for benefit in plan.benefits %}
+                <li class="mb-1">• {{ benefit }}</li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="plan" value="{{ plan.value }}" />
             <div class="mt-auto">
-              <button type="submit" class="btn btn-primary w-100">Elegir {{ plan_label }}</button>
+              <button type="submit" class="btn btn-primary w-100">Elegir {{ plan.label }}</button>
             </div>
           </div>
         </form>
@@ -36,7 +40,7 @@
 
     <div class="row mt-4">
       <div class="col-12 text-center">
-        <a href="{% url 'dashboard_cliente_final' %}" class="btn btn-link">Volver a mi panel</a>
+        <a href="{% url 'dashboard_cliente' %}" class="btn btn-link">Volver a mi panel</a>
       </div>
     </div>
   </div>
