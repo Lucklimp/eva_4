@@ -41,7 +41,7 @@
         </div>
 
         <div class="row g-4">
-            {% if request.user.role == 'super_admin' or request.user.role == 'admin_cliente' or request.user.role == 'vendedor' %}
+            {% if request.user.role in ['super_admin', 'admin_cliente', 'vendedor'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-success h-100">
                     <div class="card-body text-center">
@@ -52,7 +52,7 @@
             </div>
             {% endif %}
 
-            {% if request.user.role == 'super_admin' or request.user.role == 'admin_cliente' or request.user.role == 'gerente' %}
+            {% if request.user.role in ['super_admin', 'admin_cliente', 'gerente'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-primary h-100">
                     <div class="card-body text-center">
@@ -63,7 +63,7 @@
             </div>
             {% endif %}
 
-            {% if request.user.role == 'super_admin' or request.user.role == 'admin_cliente' or request.user.role == 'gerente' %}
+            {% if request.user.role in ['super_admin', 'admin_cliente', 'gerente'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-info h-100">
                     <div class="card-body text-center">
@@ -74,7 +74,7 @@
             </div>
             {% endif %}
 
-            {% if request.user.role == 'super_admin' or request.user.role == 'admin_cliente' %}
+            {% if request.user.role in ['super_admin', 'admin_cliente'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-secondary h-100">
                     <div class="card-body text-center">
@@ -85,7 +85,7 @@
             </div>
             {% endif %}
 
-            {% if menu_flags.allow_reports and (request.user.role == 'super_admin' or request.user.role == 'admin_cliente' or request.user.role == 'gerente') %}
+            {% if menu_flags.allow_reports and request.user.role in ['super_admin', 'admin_cliente', 'gerente'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-warning h-100">
                     <div class="card-body text-center">
@@ -110,7 +110,7 @@
             </div>
             {% endif %}
 
-            {% if request.user.role == 'super_admin' or request.user.role == 'admin_cliente' %}
+            {% if request.user.role in ['super_admin', 'admin_cliente'] %}
             <div class="col-md-4">
                 <div class="card module-card text-white bg-danger h-100">
                     <div class="card-body text-center">
