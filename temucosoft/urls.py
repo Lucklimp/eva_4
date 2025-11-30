@@ -18,6 +18,8 @@ from core.views import (
 from core.web import (
     AdminClienteDashboardView,
     ClienteFinalDashboardView,
+    ClientePlanDetailView,
+    ClientePlanSelectionView,
     GerenteDashboardView,
     LogoutView,
     RoleLoginView,
@@ -55,5 +57,7 @@ urlpatterns = [
     path('dashboard/gerente/', GerenteDashboardView.as_view(), name='dashboard_gerente'),
     path('dashboard/vendedor/', VendedorDashboardView.as_view(), name='dashboard_vendedor'),
     path('dashboard/cliente-final/', ClienteFinalDashboardView.as_view(), name='dashboard_cliente_final'),
+    path('cliente/seleccionar-plan/', ClientePlanSelectionView.as_view(), name='cliente_plan_selection'),
+    path('cliente/mi-plan/', ClientePlanDetailView.as_view(), name='cliente_plan_detail'),
     path('logout/', LogoutView.as_view(), name='logout'),
 ]
