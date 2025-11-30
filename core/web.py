@@ -4,9 +4,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
+from .models import PLANES, Company, Subscription
 from .permissions import RoleRequiredMixin
 from .utils import build_menu_flags, get_company_plan
 
@@ -90,3 +92,93 @@ class VendedorDashboardView(BaseDashboardView):
 class ClienteFinalDashboardView(BaseDashboardView):
     allowed_roles = ["cliente_final"]
     role_label = "Cliente Final"
+
+    def dispatch(self, request, *args, **kwargs):
+        plan_name = get_company_plan(request.user.company) if request.user.is_authenticated else None
+        if request.user.is_authenticated and not plan_name:
+            # Redirige al selector de plan si es el primer login o no tiene plan activo.
+            return redirect("cliente_plan_selection")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ClientePlanSelectionView(RoleRequiredMixin, TemplateView):
+    """Permite a clientes seleccionar un plan en su primer inicio."""
+
+    template_name = "plan_selection.html"
+    allowed_roles = ["cliente_final"]
+
+    def post(self, request, *args, **kwargs):
+        plan_name = request.POST.get("plan")
+        if plan_name not in dict(PLANES):
+            messages.error(request, "Debes elegir un plan válido.")
+            return self.get(request, *args, **kwargs)
+
+        company = request.user.company
+        if not company:
+            # Suposición: los clientes finales sin compañía obtienen una compañía propia.
+            company = Company.objects.create(
+                name=f"Cuenta {request.user.username}",
+                rut=request.user.rut or "11.111.111-1",
+                address="",
+            )
+            request.user.company = company
+            request.user.save(update_fields=["company"])
+
+        Subscription.objects.update_or_create(
+            company=company,
+            defaults={
+                "plan_name": plan_name,
+                # Suposición simple: plan activo por 30 días desde hoy. Ajustar según negocio real.
+                "start_date": timezone.localdate(),
+                "end_date": timezone.localdate() + timezone.timedelta(days=30),
+                "active": True,
+            },
+        )
+
+        messages.success(request, "Plan seleccionado correctamente.")
+        return redirect("dashboard_cliente_final")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["plan_choices"] = PLANES
+        return context
+
+
+class ClientePlanDetailView(RoleRequiredMixin, TemplateView):
+    """Muestra el plan actual y permite cambiarlo."""
+
+    template_name = "my_plan.html"
+    allowed_roles = ["cliente_final"]
+
+    def post(self, request, *args, **kwargs):
+        plan_name = request.POST.get("plan")
+        if plan_name not in dict(PLANES):
+            messages.error(request, "Selecciona un plan válido.")
+            return self.get(request, *args, **kwargs)
+
+        company = request.user.company
+        if not company:
+            messages.error(request, "No tienes una compañía asociada para el plan.")
+            return redirect("cliente_plan_selection")
+
+        Subscription.objects.update_or_create(
+            company=company,
+            defaults={
+                "plan_name": plan_name,
+                # Cambio inmediato: reinicia rango de fechas.
+                "start_date": timezone.localdate(),
+                "end_date": timezone.localdate() + timezone.timedelta(days=30),
+                "active": True,
+            },
+        )
+        messages.success(request, "Plan actualizado correctamente.")
+        return redirect("cliente_plan_detail")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        plan_name = get_company_plan(self.request.user.company)
+        context.update({
+            "plan_name": plan_name,
+            "plan_choices": PLANES,
+        })
+        return context
